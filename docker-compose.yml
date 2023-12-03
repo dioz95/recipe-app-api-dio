@@ -1,0 +1,32 @@
+version: "3.9" # optional
+
+services: # services names are used as DNS Hostnames
+  app:
+    build:
+      context: .
+      args:
+        - DEV=true # build dockerfile with argument DEV=true
+    ports:
+      - "8000:8000" # port in host:port in container
+    volumes:
+      - .:/app
+    command: sh -c "python manage.py runserver 0.0.0.0:8000" # run command when docker-compuse up 
+    environment:
+      - DB_HOST=db 
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASSWORD=devpass
+    depends_on:
+      - db # db run first before run app
+  
+  db:
+    image: postgres:13 alpine
+    environment:
+      - POSTGRES_DB=devdb 
+      - POSTGRES_USER=devuser 
+      - POSTGRES_PASSWORD=devpass
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data # for storing postgres data in volume
+  
+volumes:
+  dev-db-data: #for creating volume
